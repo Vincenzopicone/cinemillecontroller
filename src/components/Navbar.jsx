@@ -7,8 +7,7 @@ function NavBar() {
       <Link to={'/'} className='text-decoration-none text-dark'><h2 className='titleNavBar'><span><BsFilm/></span> CineMille</h2></Link>
       <section className='d-flex justify-content-center pt-3'>
       <Link to={'/'} className='text-decoration-none text-dark me-5'><h5 >Crea la programmazione</h5></Link>
-      <Link to={'/programmazione'} className='text-decoration-none text-dark me-5'><h5 >Programmazione</h5></Link>
-      {/* <Link to={'/sale'} className='text-decoration-none text-dark'><h5 >Sale</h5></Link> */}
+      {/* <Link to={'/programmazione'} className='text-decoration-none text-dark me-5'><h5 >Programmazione</h5></Link> */}
       </section>
     </nav>
 

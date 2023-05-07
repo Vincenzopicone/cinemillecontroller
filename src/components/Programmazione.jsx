@@ -5,18 +5,16 @@ import { getValue } from "@testing-library/user-event/dist/utils";
 
 const Programmazione = () => {
   const [programmazione, setProgrammazione] = useState();
-  const [selectedValue, setSelectedValue] = useState("");
 
-  
   const [startDate, setStartDate] = useState(
     moment().clone().day(0).format("yyyy-MM-DD")
   );
   const [endDate, setEndDate] = useState(
-    moment().clone().day(0).add(7, "days").format("yyyy-MM-DD")
+    moment().clone().day(0).add(6, "days").format("yyyy-MM-DD")
   );
   const handleSelectChange = (event) => {
     setStartDate(event);
-    setEndDate(moment(event).clone().day(0).add(7, "days").format("yyyy-MM-DD"))
+    setEndDate(moment(event).clone().day(0).add(6, "days").format("yyyy-MM-DD"))
   };
 
   const inizioSettimanaArray = [];
