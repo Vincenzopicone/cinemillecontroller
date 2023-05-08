@@ -1,20 +1,27 @@
-import { getValue } from "@testing-library/user-event/dist/utils";
 import moment from "moment";
 import { useEffect, useState } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, Spinner, Alert } from "react-bootstrap";
 
 const CreaProgrammazione = () => {
-  const [film, setFilm] = useState();
-  const [sala, setSala] = useState();
-  const [filmSelezionato, setFilmSelezionato] = useState({});
-  const [salaSelezionata, setSalaSelezionata] = useState({});
+  const [film, setFilm] = useState([]);
+  // const prova = film.find((obj) => obj.id === 10)
+  // console.log(prova)
+  const [sala, setSala] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+  // const [filmSelezionatoID, setFilmSelezionatoID] = useState(null);
+  const [filmSelezionato, setFilmSelezionato] = useState(null);
+  // const [salaSelezionataID, setSalaSelezionataID] = useState(null);
+  const [salaSelezionata, setSalaSelezionata] = useState(null);
   const [dataSelezionata, setDataSelezionata] = useState("");
   const [dataFine, setDataFine] = useState();
   const [invio, setInvio] = useState(false);
+  const [rimuovi, setRimuovi] = useState(false);
+  const [id, setId] = useState();
   const [programmazione, setProgrammazione] = useState();
+  console.log(programmazione)
   const inizioSettimanaArray = [];
   const fineSettimanaArray = [];
-  
 
   const [startDate, setStartDate] = useState(
     moment().clone().day(0).format("yyyy-MM-DD")
@@ -29,30 +36,70 @@ const CreaProgrammazione = () => {
     );
   };
   const handleSelectChangeFilm = (event) => {
-    setFilmSelezionato(event)
-  }
+    const selected = parseInt(event);
+    console.log("event", selected);
+    let selezione = film.find((obj) => obj.id === selected);
+    console.log("selezionefind", selezione);
+    setFilmSelezionato(selezione);
+    // console.log("film selezionato", filmSelezionato)
+    // console.log("id film", selected)
+    // setFilmSelezionatoID(selected)
+    // getSelectedFilm(selected);
+  };
+  // const getSelectedFilm = (select) => {
+  //   console.log("numeroselezionato", select)
+  //   if (!select) {
+  //     return null;
+  //   }
+  //   let selezione = film.find((obj) => obj.id === select)
+  //   console.log("filmselezionato", selezione)
+  //   return setFilmSelezionato(selezione);
+  // }
   const handleSelectChangeSala = (event) => {
-    setSalaSelezionata(event)
-  }
+    const selected = parseInt(event);
+    console.log("event", selected);
+    let selezione = sala.find((obj) => obj.id === selected);
+    console.log("selezionefind", selezione);
+    setSalaSelezionata(selezione);
+    // const selected = event
+    // console.log("id sala", selected)
+    // setSalaSelezionataID(selected)
+    // getSelectedSala();
+  };
+  // const getSelectedSala = () => {
+  //   if (!salaSelezionataID) {
+  //     return null;
+  //   }
+  //   return setSalaSelezionata(sala.find((obj) => obj.id === salaSelezionataID));
+  // }
   const handleSelectChangeData = (event) => {
-    setDataSelezionata(event)
-    setDataFine(moment(event).clone().day(0).add(6, "days").format("yyyy-MM-DD"))
-  }
+    setDataSelezionata(event);
+    console.log(event);
+    setDataFine(
+      moment(event).clone().day(0).add(6, "days").format("yyyy-MM-DD")
+    );
+    console.log(dataFine);
+  };
 
   const caricaProgrammazione = () => {
-    setInvio(!invio)
-  }
+    setInvio(!invio);
+  };
+
+  const eliminaProgrammazione = (id) => {
+    setId(id);
+    setRimuovi(!rimuovi);  
+  };
 
   const optionWeek = () => {
     const giorni = 7;
     for (let i = 0; i < 20; i++) {
       let inizioSettimana = moment()
         .clone(0)
-        .add(7 + i * giorni, "days")
+        .add(6 + i * giorni, "days")
         .format("yyyy-MM-DD");
       let fineSettimana = moment()
         .clone(0)
-        .add(14 + i * giorni, "days")
+        .add(13 + i * giorni, "days")
         .format("yyyy-MM-DD");
       inizioSettimanaArray.push(inizioSettimana);
       fineSettimanaArray.push(fineSettimana);
@@ -68,15 +115,20 @@ const CreaProgrammazione = () => {
       if (response.ok) {
         const data = await response.json();
         setProgrammazione(data.content);
-        console.log(data.content);
+        setIsLoading(false);
       } else {
+        setIsError(true);
+        setIsLoading(false);
       }
-    } catch (error) {}
+    } catch (error) {
+      setIsError(true);
+      setIsLoading(false);
+    }
   };
-  useEffect(() => {
-    getProgrammazione();
-  }, [startDate]);
 
+  // useEffect(() => {
+  //   getProgrammazione();
+  // }, [invio]);
   const getFilm = async () => {
     try {
       const response = await fetch("http://localhost:8080/film");
@@ -104,31 +156,59 @@ const CreaProgrammazione = () => {
   };
 
   const postProgrammazione = async () => {
-    try{
-      const response = await fetch("http://localhost:8080/programmazioni/inserisci", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: ({
-          "film": filmSelezionato,
-          "sala": salaSelezionata,
-          "datauscita": dataSelezionata,
-          "datafineprogrammazione": dataFine
-        }),
-      });
+    try {
+      const response = await fetch(
+        "http://localhost:8080/programmazioni/inserisci",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            film: filmSelezionato,
+            sala: salaSelezionata,
+            datauscita: dataSelezionata,
+            datafineprogrammazione: dataFine,
+          }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
-    } else {
+      } else {
+      }
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const deleteProgrammazione = async () => {
+    try {
+      const response = await fetch (
+        `http://localhost:8080/programmazioni/elimina/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      )
+
+      if (response.ok) {
+        
+      } else {
+
+      }
+    } catch (errore) {
 
     }
-
-  }catch (error) {
-
   }
-}
+  useEffect(() => {
+    getProgrammazione();
+  }, [startDate, invio, rimuovi]);
+
 
   useEffect(() => {
     getFilm();
@@ -136,17 +216,17 @@ const CreaProgrammazione = () => {
   }, []);
 
   useEffect(() => {
-    getProgrammazione();
-  }, [startDate]);
-
-  useEffect(() => {
     postProgrammazione();
-  },[invio])
+  },[invio]);
+
+  useEffect(()=> {
+    deleteProgrammazione()
+  },[rimuovi])
 
   return (
     <Container className="py-3 px-0">
       <Row>
-      <Col xs={6}>
+        <Col xs={6}>
           <Row className="d-flex justify-content-center">
             <Col xs={6}>
               <select
@@ -155,7 +235,12 @@ const CreaProgrammazione = () => {
                 value={startDate}
                 onChange={(e) => handleSelectChange(e.target.value)}
               >
-                <option value={moment().clone().day(0).format("yyyy-MM-DD")} selected>Settimana in corso</option>
+                <option
+                  value={moment().clone().day(0).format("yyyy-MM-DD")}
+                  selected
+                >
+                  Settimana in corso
+                </option>
                 {inizioSettimanaArray &&
                   inizioSettimanaArray.map((giorno) => (
                     <option value={giorno}>
@@ -175,12 +260,19 @@ const CreaProgrammazione = () => {
               TITOLO
             </Col>
           </Row>
+          {isLoading && <Spinner animation="border" variant="secondary" />}
+          {isError && (
+            <Alert variant="danger">Errore nel caricamento della pagina</Alert>
+          )}
           {programmazione &&
             programmazione.map((film, i) => (
-              <Row className="d-flex justify-content-center">
+              <Row className="d-flex justify-content-center mb-1">
                 <Col xs={1}>{film?.sala.numerosala}</Col>
                 <Col className="text-start p-1" xs={8}>
                   {film?.film.titolo}
+                </Col>
+                <Col xs={2}>
+                  <Button variant="danger" onClick={() => eliminaProgrammazione(film.id)}>Elimina</Button>
                 </Col>
               </Row>
             ))}
@@ -188,20 +280,30 @@ const CreaProgrammazione = () => {
         <Col xs={6}>
           <Row className="d-flex justify-content-center p-3">
             <Col xs={8} className="pb-3">
-              <select class="form-select" aria-label="Default select example" onChange={() => console.log(film)}>
+              <select
+                class="form-select"
+                aria-label="Default select example"
+                onChange={(e) => handleSelectChangeFilm(e.target.value)}
+              >
                 <option selected>Scegli il film</option>
                 {film &&
                   film.map((film) => (
-                    <option value={film}>{film.titolo}</option>
+                    <option key={film.id} value={film.id}>
+                      {film.titolo}
+                    </option>
                   ))}
               </select>
             </Col>
             <Col xs={8} className="pb-3">
-              <select class="form-select" aria-label="Default select example" onChange={(e) => handleSelectChangeSala(e.target.value)}>
+              <select
+                class="form-select"
+                aria-label="Default select example"
+                onChange={(e) => handleSelectChangeSala(e.target.value)}
+              >
                 <option selected>Scegli la sala</option>
                 {sala &&
                   sala.map((sala, i) => (
-                    <option value={sala[i]}>
+                    <option key={sala.id} value={sala.id}>
                       SALA {sala.numerosala}
                       {sala.tiposala === "IMAX" && " - IMAX"}
                     </option>
@@ -209,11 +311,15 @@ const CreaProgrammazione = () => {
               </select>
             </Col>
             <Col xs={8} className="pb-3">
-              <select class="form-select" aria-label="Default select example" onChange={(e) => handleSelectChangeData(e.target.value)}>
-                <option  selected>Scegli la settimana</option>
+              <select
+                class="form-select"
+                aria-label="Default select example"
+                onChange={(e) => handleSelectChangeData(e.target.value)}
+              >
+                <option  value={moment().clone().day(0).format("yyyy-MM-DD")} selected>Settimana in corso</option>
                 {inizioSettimanaArray &&
                   inizioSettimanaArray.map((giorno, i) => (
-                    <option value={giorno[i]}>
+                    <option key={giorno} value={giorno}>
                       {" "}
                       {giorno.slice(8, 10)}-{giorno.slice(5, 7)}-
                       {giorno.slice(0, 4)}
@@ -222,20 +328,15 @@ const CreaProgrammazione = () => {
               </select>
             </Col>
             <Col xs={8}>
-              <Button variant="success" onClick={() => caricaProgrammazione()}>Inserisci</Button>
-              
-            </Col>
-            <Col xs={8}>
-              <h6>Carica programmazione con excel</h6>
-              <Button variant="primary">Inserisci</Button>
+              <Button variant="success" onClick={() => caricaProgrammazione()}>
+                Inserisci
+              </Button>
             </Col>
           </Row>
         </Col>
-
       </Row>
     </Container>
   );
 };
 
 export default CreaProgrammazione;
-

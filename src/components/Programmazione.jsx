@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import moment from "moment";
-import { getValue } from "@testing-library/user-event/dist/utils";
 
 const Programmazione = () => {
   const [programmazione, setProgrammazione] = useState();
