@@ -18,7 +18,6 @@ const CreaProgrammazione = () => {
   const inizioSettimanaArray = [];
   const fineSettimanaArray = [];
   const inizioSettimanaArrayBack = [];
-  console.log(inizioSettimanaArrayBack)
   const fineSettimanaArrayBack = [];
 
   const [startDate, setStartDate] = useState(
@@ -168,7 +167,7 @@ const CreaProgrammazione = () => {
             film: filmSelezionato,
             sala: salaSelezionata,
             datauscita: dataSelezionata,
-            datafineprogrammazione: dataFine,
+            datafineprogrammazione: dataFine
           }),
         }
       );
