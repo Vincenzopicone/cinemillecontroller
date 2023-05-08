@@ -61,7 +61,7 @@ const Programmazione = () => {
             <option selected>Settimana in corso</option>
             {inizioSettimanaArray &&
               inizioSettimanaArray.map((giorno) => (
-                <option value={giorno}> dal 
+                <option key={giorno.id} value={giorno}> dal 
                   {" "}
                   {giorno.slice(8, 10)}-{giorno.slice(5, 7)}-
                   {giorno.slice(0, 4)}
@@ -76,7 +76,7 @@ const Programmazione = () => {
       </Row>
       {programmazione &&
         programmazione.map((film, i) => (
-          <Row className="d-flex justify-content-center">
+          <Row key={film.id} className="d-flex justify-content-center">
             <Col xs={3}>{film?.sala.numerosala}</Col>
             <Col className="text-start p-1" xs={5}>
               {film?.film.titolo}

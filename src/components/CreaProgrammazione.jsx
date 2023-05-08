@@ -4,24 +4,22 @@ import { Container, Row, Col, Button, Spinner, Alert } from "react-bootstrap";
 
 const CreaProgrammazione = () => {
   const [film, setFilm] = useState([]);
-  // const prova = film.find((obj) => obj.id === 10)
-  // console.log(prova)
   const [sala, setSala] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
-  // const [filmSelezionatoID, setFilmSelezionatoID] = useState(null);
   const [filmSelezionato, setFilmSelezionato] = useState(null);
-  // const [salaSelezionataID, setSalaSelezionataID] = useState(null);
   const [salaSelezionata, setSalaSelezionata] = useState(null);
-  const [dataSelezionata, setDataSelezionata] = useState("");
-  const [dataFine, setDataFine] = useState();
+  const [dataSelezionata, setDataSelezionata] = useState(moment().clone().day(0).format("yyyy-MM-DD"));
+  const [dataFine, setDataFine] = useState(moment().clone().day(0).add(6, "days").format("yyyy-MM-DD"));
   const [invio, setInvio] = useState(false);
   const [rimuovi, setRimuovi] = useState(false);
   const [id, setId] = useState();
   const [programmazione, setProgrammazione] = useState();
-  console.log(programmazione)
   const inizioSettimanaArray = [];
   const fineSettimanaArray = [];
+  const inizioSettimanaArrayBack = [];
+  console.log(inizioSettimanaArrayBack)
+  const fineSettimanaArrayBack = [];
 
   const [startDate, setStartDate] = useState(
     moment().clone().day(0).format("yyyy-MM-DD")
@@ -46,15 +44,7 @@ const CreaProgrammazione = () => {
     // setFilmSelezionatoID(selected)
     // getSelectedFilm(selected);
   };
-  // const getSelectedFilm = (select) => {
-  //   console.log("numeroselezionato", select)
-  //   if (!select) {
-  //     return null;
-  //   }
-  //   let selezione = film.find((obj) => obj.id === select)
-  //   console.log("filmselezionato", selezione)
-  //   return setFilmSelezionato(selezione);
-  // }
+
   const handleSelectChangeSala = (event) => {
     const selected = parseInt(event);
     console.log("event", selected);
@@ -66,12 +56,7 @@ const CreaProgrammazione = () => {
     // setSalaSelezionataID(selected)
     // getSelectedSala();
   };
-  // const getSelectedSala = () => {
-  //   if (!salaSelezionataID) {
-  //     return null;
-  //   }
-  //   return setSalaSelezionata(sala.find((obj) => obj.id === salaSelezionataID));
-  // }
+
   const handleSelectChangeData = (event) => {
     setDataSelezionata(event);
     console.log(event);
@@ -87,12 +72,12 @@ const CreaProgrammazione = () => {
 
   const eliminaProgrammazione = (id) => {
     setId(id);
-    setRimuovi(!rimuovi);  
+    setRimuovi(!rimuovi); 
   };
 
   const optionWeek = () => {
     const giorni = 7;
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       let inizioSettimana = moment()
         .clone(0)
         .add(6 + i * giorni, "days")
@@ -106,6 +91,22 @@ const CreaProgrammazione = () => {
     }
   };
   optionWeek();
+  const optionWeekBack = () => {
+    const giorni = 7;
+    for (let i = 0; i < 10; i++) {
+      let inizioSettimana = moment()
+        .clone(0)
+        .add(-8 - i * giorni, "days")
+        .format("yyyy-MM-DD");
+      let fineSettimana = moment()
+        .clone(0)
+        .add(-15 - i * giorni, "days")
+        .format("yyyy-MM-DD");
+      inizioSettimanaArrayBack.push(inizioSettimana);
+      fineSettimanaArrayBack.push(fineSettimana);
+    }
+  };
+  optionWeekBack();
 
   const getProgrammazione = async () => {
     try {
@@ -126,9 +127,7 @@ const CreaProgrammazione = () => {
     }
   };
 
-  // useEffect(() => {
-  //   getProgrammazione();
-  // }, [invio]);
+
   const getFilm = async () => {
     try {
       const response = await fetch("http://localhost:8080/film");
@@ -176,7 +175,6 @@ const CreaProgrammazione = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setInvio(!invio);
       } else {
       }
     } catch (error) {
@@ -197,9 +195,7 @@ const CreaProgrammazione = () => {
         }
       )
 
-      if (response.ok) {
-        setRimuovi(!rimuovi)
-        
+      if (response.ok) {        
       } else {
 
       }
@@ -218,34 +214,50 @@ const CreaProgrammazione = () => {
   }, []);
 
   useEffect(() => {
+    if(invio === true) {
     postProgrammazione();
+    }
+    setInvio(false)
   },[invio]);
 
   useEffect(()=> {
+    if(rimuovi === true) {
     deleteProgrammazione()
+    }
+    setRimuovi(false)
   },[rimuovi])
 
   return (
-    <Container className="py-3 px-0">
-      <Row>
+    <Container>
+      <Row className="d-flex justify-content-center py-3">
         <Col xs={6}>
-          <Row className="d-flex justify-content-center">
+          <Row className="d-flex justify-content-center mb-2">
             <Col xs={6}>
               <select
-                class="form-select"
+                className="form-select"
                 aria-label={startDate}
                 value={startDate}
                 onChange={(e) => handleSelectChange(e.target.value)}
               >
+                {inizioSettimanaArrayBack &&
+                  inizioSettimanaArrayBack.reverse().map((giorno) => (
+                    <option key={giorno.id} value={giorno}>
+                      {" "}
+                      dal {giorno.slice(8, 10)}-{giorno.slice(5, 7)}-
+                      {giorno.slice(0, 4)}
+                    </option>
+                  ))}
+                
                 <option
                   value={moment().clone().day(0).format("yyyy-MM-DD")}
                   selected
                 >
                   Settimana in corso
                 </option>
+                
                 {inizioSettimanaArray &&
                   inizioSettimanaArray.map((giorno) => (
-                    <option value={giorno}>
+                    <option key={giorno.id} value={giorno}>
                       {" "}
                       dal {giorno.slice(8, 10)}-{giorno.slice(5, 7)}-
                       {giorno.slice(0, 4)}
@@ -254,12 +266,14 @@ const CreaProgrammazione = () => {
               </select>
             </Col>
           </Row>
-          <Row className="d-flex justify-content-center mt-2">
+          <Row className="d-flex justify-content-center mb-2 py-2 border border-dark">
             <Col className="fw-bold p-1" xs={1}>
               SALA
             </Col>
             <Col className="text-start fw-bold p-1" xs={8}>
               TITOLO
+            </Col>
+            <Col xs={2}>
             </Col>
           </Row>
           {isLoading && <Spinner animation="border" variant="secondary" />}
@@ -267,8 +281,8 @@ const CreaProgrammazione = () => {
             <Alert variant="danger">Errore nel caricamento della pagina</Alert>
           )}
           {programmazione &&
-            programmazione.map((film, i) => (
-              <Row className="d-flex justify-content-center mb-1">
+            programmazione.map((film) => (
+              <Row key={film.id} className="d-flex justify-content-center mb-1 py-2 border border-dark">
                 <Col xs={1}>{film?.sala.numerosala}</Col>
                 <Col className="text-start p-1" xs={8}>
                   {film?.film.titolo}
@@ -279,11 +293,11 @@ const CreaProgrammazione = () => {
               </Row>
             ))}
         </Col>
-        <Col xs={6}>
+        <Col xs={6} className="d-flex flex-column justify-content-center">
           <Row className="d-flex justify-content-center p-3">
             <Col xs={8} className="pb-3">
               <select
-                class="form-select"
+                className="form-select"
                 aria-label="Default select example"
                 onChange={(e) => handleSelectChangeFilm(e.target.value)}
               >
@@ -298,7 +312,7 @@ const CreaProgrammazione = () => {
             </Col>
             <Col xs={8} className="pb-3">
               <select
-                class="form-select"
+                className="form-select"
                 aria-label="Default select example"
                 onChange={(e) => handleSelectChangeSala(e.target.value)}
               >
@@ -312,16 +326,24 @@ const CreaProgrammazione = () => {
                   ))}
               </select>
             </Col>
-            <Col xs={8} className="pb-3">
+            <Col xs={8} className="pb-3 ">
               <select
-                class="form-select"
+                className="form-select"
                 aria-label="Default select example"
                 onChange={(e) => handleSelectChangeData(e.target.value)}
               >
+                {inizioSettimanaArrayBack &&
+                  inizioSettimanaArrayBack.map((giorno) => (
+                    <option key={giorno.id} value={giorno}>
+                      {" "}
+                      dal {giorno.slice(8, 10)}-{giorno.slice(5, 7)}-
+                      {giorno.slice(0, 4)}
+                    </option>
+                  ))}
                 <option  value={moment().clone().day(0).format("yyyy-MM-DD")} selected>Settimana in corso</option>
                 {inizioSettimanaArray &&
                   inizioSettimanaArray.map((giorno, i) => (
-                    <option key={giorno} value={giorno}>
+                    <option key={giorno.id} value={giorno}>
                       {" "}
                       {giorno.slice(8, 10)}-{giorno.slice(5, 7)}-
                       {giorno.slice(0, 4)}
