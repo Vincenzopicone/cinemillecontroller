@@ -176,10 +176,11 @@ const CreaProgrammazione = () => {
 
       if (response.ok) {
         const data = await response.json();
+        setInvio(!invio);
       } else {
       }
     } catch (error) {
-      alert(error);
+      
     }
   };
 
@@ -197,6 +198,7 @@ const CreaProgrammazione = () => {
       )
 
       if (response.ok) {
+        setRimuovi(!rimuovi)
         
       } else {
 
