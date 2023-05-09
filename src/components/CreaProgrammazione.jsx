@@ -33,6 +33,8 @@ const CreaProgrammazione = () => {
     setEndDate(
       moment(event).clone().day(0).add(6, "days").format("yyyy-MM-DD")
     );
+    setInvioOK(false)
+    setRimuoviOK(false)
   };
   const handleSelectChangeFilm = (event) => {
     const selected = parseInt(event);
