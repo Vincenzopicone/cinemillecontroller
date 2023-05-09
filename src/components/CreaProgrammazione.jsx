@@ -12,6 +12,8 @@ const CreaProgrammazione = () => {
   const [dataSelezionata, setDataSelezionata] = useState(moment().clone().day(0).format("yyyy-MM-DD"));
   const [dataFine, setDataFine] = useState(moment().clone().day(0).add(6, "days").format("yyyy-MM-DD"));
   const [invio, setInvio] = useState(false);
+  const [invioOK, setInvioOK] = useState(false);
+  const [rimuoviOK, setRimuoviOK] = useState(false);
   const [rimuovi, setRimuovi] = useState(false);
   const [id, setId] = useState();
   const [programmazione, setProgrammazione] = useState();
@@ -34,44 +36,36 @@ const CreaProgrammazione = () => {
   };
   const handleSelectChangeFilm = (event) => {
     const selected = parseInt(event);
-    console.log("event", selected);
     let selezione = film.find((obj) => obj.id === selected);
-    console.log("selezionefind", selezione);
     setFilmSelezionato(selezione);
-    // console.log("film selezionato", filmSelezionato)
-    // console.log("id film", selected)
-    // setFilmSelezionatoID(selected)
-    // getSelectedFilm(selected);
+    setInvioOK(false)
+    setRimuoviOK(false)
+
   };
 
   const handleSelectChangeSala = (event) => {
     const selected = parseInt(event);
-    console.log("event", selected);
     let selezione = sala.find((obj) => obj.id === selected);
-    console.log("selezionefind", selezione);
     setSalaSelezionata(selezione);
-    // const selected = event
-    // console.log("id sala", selected)
-    // setSalaSelezionataID(selected)
-    // getSelectedSala();
   };
 
   const handleSelectChangeData = (event) => {
     setDataSelezionata(event);
-    console.log(event);
     setDataFine(
       moment(event).clone().day(0).add(6, "days").format("yyyy-MM-DD")
     );
-    console.log(dataFine);
   };
 
   const caricaProgrammazione = () => {
     setInvio(!invio);
+    setRimuoviOK(false)
   };
 
   const eliminaProgrammazione = (id) => {
     setId(id);
     setRimuovi(!rimuovi); 
+    setRimuoviOK(true)
+    setInvioOK(false)
   };
 
   const optionWeek = () => {
@@ -79,11 +73,11 @@ const CreaProgrammazione = () => {
     for (let i = 0; i < 10; i++) {
       let inizioSettimana = moment()
         .clone(0)
-        .add(6 + i * giorni, "days")
+        .add(5 + i * giorni, "days")
         .format("yyyy-MM-DD");
       let fineSettimana = moment()
         .clone(0)
-        .add(13 + i * giorni, "days")
+        .add(12 + i * giorni, "days")
         .format("yyyy-MM-DD");
       inizioSettimanaArray.push(inizioSettimana);
       fineSettimanaArray.push(fineSettimana);
@@ -95,11 +89,11 @@ const CreaProgrammazione = () => {
     for (let i = 0; i < 10; i++) {
       let inizioSettimana = moment()
         .clone(0)
-        .add(-8 - i * giorni, "days")
+        .add(-9 - i * giorni, "days")
         .format("yyyy-MM-DD");
       let fineSettimana = moment()
         .clone(0)
-        .add(-15 - i * giorni, "days")
+        .add(-16 - i * giorni, "days")
         .format("yyyy-MM-DD");
       inizioSettimanaArrayBack.push(inizioSettimana);
       fineSettimanaArrayBack.push(fineSettimana);
@@ -174,6 +168,7 @@ const CreaProgrammazione = () => {
 
       if (response.ok) {
         const data = await response.json();
+        setInvioOK(true)
       } else {
       }
     } catch (error) {
@@ -194,7 +189,8 @@ const CreaProgrammazione = () => {
         }
       )
 
-      if (response.ok) {        
+      if (response.ok) {  
+        setRimuoviOK(true)      
       } else {
 
       }
@@ -204,7 +200,7 @@ const CreaProgrammazione = () => {
   }
   useEffect(() => {
     getProgrammazione();
-  }, [startDate, invio, rimuovi]);
+  }, [startDate, invio, rimuovi, invioOK, rimuoviOK]);
 
 
   useEffect(() => {
@@ -230,7 +226,7 @@ const CreaProgrammazione = () => {
     <Container>
       <Row className="d-flex justify-content-center py-3">
         <Col xs={6}>
-          <Row className="d-flex justify-content-center mb-2">
+          <Row className="d-flex justify-content-center mb-3">
             <Col xs={6}>
               <select
                 className="form-select"
@@ -263,6 +259,10 @@ const CreaProgrammazione = () => {
                     </option>
                   ))}
               </select>
+              {rimuoviOK && <div className="mt-3">
+                <Alert variant='danger'>
+          Eliminato con successo!
+        </Alert></div>}
             </Col>
           </Row>
           <Row className="d-flex justify-content-center mb-2 py-2 border border-dark">
@@ -287,12 +287,12 @@ const CreaProgrammazione = () => {
                   {film?.film.titolo}
                 </Col>
                 <Col xs={2}>
-                  <Button variant="danger" onClick={() => eliminaProgrammazione(film.id)}>Elimina</Button>
+                  <Button variant="danger rounded-pill" onClick={() => eliminaProgrammazione(film.id)}>Elimina</Button>
                 </Col>
               </Row>
             ))}
         </Col>
-        <Col xs={6} className="d-flex flex-column justify-content-center">
+        <Col xs={6} className="d-flex flex-column pt-5">
           <Row className="d-flex justify-content-center p-3">
             <Col xs={8} className="pb-3">
               <select
@@ -351,9 +351,14 @@ const CreaProgrammazione = () => {
               </select>
             </Col>
             <Col xs={8}>
-              <Button variant="success" onClick={() => caricaProgrammazione()}>
-                Inserisci
+              <Button variant="success mb-2 rounded-pill" onClick={() => caricaProgrammazione()}>
+                Inserisci programamzione
               </Button>
+              {invioOK &&<div className="px-5">
+                <Alert variant='success'>
+          Caricata con successo
+        </Alert>
+              </div> }
             </Col>
           </Row>
         </Col>
