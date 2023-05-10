@@ -71,15 +71,17 @@ const CreaProgrammazione = () => {
   };
 
   const optionWeek = () => {
-    const giorni = 7;
-    for (let i = 0; i < 10; i++) {
+    for (let i = 1; i < 10; i++) {
+      const giorni = 7 * i;
       let inizioSettimana = moment()
-        .clone(0)
-        .add(5 + i * giorni, "days")
+        .clone()
+        .day(0)
+        .add(giorni, "days")
         .format("yyyy-MM-DD");
       let fineSettimana = moment()
-        .clone(0)
-        .add(12 + i * giorni, "days")
+        .clone()
+        .day(0)
+        .add(giorni, "days")
         .format("yyyy-MM-DD");
       inizioSettimanaArray.push(inizioSettimana);
       fineSettimanaArray.push(fineSettimana);
@@ -87,15 +89,18 @@ const CreaProgrammazione = () => {
   };
   optionWeek();
   const optionWeekBack = () => {
-    const giorni = 7;
-    for (let i = 0; i < 10; i++) {
+
+    for (let i = 1; i < 10; i++) {
+      const giorni = -7 * i;
       let inizioSettimana = moment()
-        .clone(0)
-        .add(-9 - i * giorni, "days")
+        .clone()
+        .day(0)
+        .add(giorni, "days")
         .format("yyyy-MM-DD");
       let fineSettimana = moment()
-        .clone(0)
-        .add(-16 - i * giorni, "days")
+        .clone()
+        .day(0)
+        .add(giorni, "days")
         .format("yyyy-MM-DD");
       inizioSettimanaArrayBack.push(inizioSettimana);
       fineSettimanaArrayBack.push(fineSettimana);
@@ -333,14 +338,14 @@ const CreaProgrammazione = () => {
                 aria-label="Default select example"
                 onChange={(e) => handleSelectChangeData(e.target.value)}
               >
-                {inizioSettimanaArrayBack &&
+                {/* {inizioSettimanaArrayBack &&
                   inizioSettimanaArrayBack.map((giorno) => (
                     <option key={giorno.id} value={giorno}>
                       {" "}
                       dal {giorno.slice(8, 10)}-{giorno.slice(5, 7)}-
                       {giorno.slice(0, 4)}
                     </option>
-                  ))}
+                  ))} */}
                 <option  value={moment().clone().day(0).format("yyyy-MM-DD")} selected>Settimana in corso</option>
                 {inizioSettimanaArray &&
                   inizioSettimanaArray.map((giorno, i) => (

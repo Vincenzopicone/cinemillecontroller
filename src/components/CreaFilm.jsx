@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, Alert } from "react-bootstrap";
 
 const CreaFilm = () => {
   const [film, setFilm] = useState([]);
@@ -10,14 +10,21 @@ const CreaFilm = () => {
   const [durata, setDurata] = useState();
   const [invio, setInvio] = useState(false);
   const [rimuovi, setRimuovi] = useState(false);
+   const [invioOK, setInvioOK] = useState(false);
+  const [rimuoviOK, setRimuoviOK] = useState(false);
   const [id, setId] = useState();
   const eliminaFilm = (id) => {
     setId(id);
     setRimuovi(!rimuovi); 
+    setInvioOK(false)
+    setRimuoviOK(true)
   };
 
   const caricaFilm = () => {
-    setInvio(!invio);
+        setInvio(!invio);
+    setRimuoviOK(false)
+        setInvioOK(true)
+
   };
 
   const postFilm = async () => {
@@ -39,6 +46,7 @@ const CreaFilm = () => {
 
       if (response.ok) {
         const data = await response.json();
+        setInvioOK(true)
       } else {
       }
     } catch (error) {
@@ -81,7 +89,7 @@ const CreaFilm = () => {
 
   useEffect(() => {
     getFilm();
-  }, [invio, rimuovi]);
+  }, [invio, rimuovi, invioOK, rimuoviOK]);
   useEffect(() => {
     if (invio === true) {
       postFilm();
@@ -159,11 +167,23 @@ const CreaFilm = () => {
               <label for="floatingInput">Durata</label>
             </div>
           </Row>
-          <Row xs={4} className="d-flex justify-content-center">
+          <Row xs={4} className="d-flex justify-content-center mb-3">
             <Button variant="success" onClick={() => caricaFilm()}>
               Inserisci
             </Button>
+         
           </Row>
+          <Row>
+            {invioOK &&<div className="px-5">
+                <Alert variant='success'>
+          Caricata con successo
+        </Alert>
+              </div> }
+              {rimuoviOK && <div className="mt-3 px-5">
+                <Alert variant='danger'>
+          Eliminato con successo!
+        </Alert></div>}
+            </Row>
         </Col>
         <Col xs={6} className="py-5">
         <Row className="d-flex justify-content-center mb-2 py-1 border border-dark">
